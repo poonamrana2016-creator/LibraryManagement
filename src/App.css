@@ -1,0 +1,126 @@
+* {
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+.bg_image {
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKDVI87HnzfZEc3dIYoAf7xZuHbUdtD-tEzA&s');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.nav_bg {
+    /* background: linear-gradient(to right, #59a665, #a3e06a); */
+    background: transparent !important;
+}
+
+.title_color {
+    background: linear-gradient(to right, #59a665, #a3e06a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-style: italic;
+}
+
+/* .title_bg{
+    background-color: transparent !important;
+} */
+
+.no_underline {
+    text-decoration: none;
+}
+
+.left_sidebar {
+    height: 100vh;
+    overflow: auto !important;
+    background-color: rgb(204, 204, 216);
+}
+
+.right_dashboard {
+    height: 100vh;
+    overflow: auto;
+    background-color: rgb(200, 181, 181);
+    /* box-sizing: border-box; */
+    margin: 0px;
+    padding: 0px;
+    /* /* overflow:auto; */
+}
+
+ul>li>a {
+    text-decoration: none;
+    color: black;
+
+}
+
+
+/* Navbar custom */
+.navbar_search_icon {
+    position: absolute;
+    margin-left: 490px;
+}
+
+.profile_icon {
+    position: relative;
+    margin-left: 630px;
+    margin-top: 2px;
+}
+
+.notification_icon {
+    position: absolute;
+    margin-left: 580px;
+    margin-top: 2px;
+}
+
+.notification_access {
+    position: absolute;
+    margin-top: 3px;
+    visibility: hidden;
+}
+
+.icon_hover:hover {
+    color: rgb(70, 70, 231);
+}
+
+.book_page {
+    overflow: auto !important;
+}
+
+.tooltip_container {
+    position: relative;
+    display: inline-block;
+    /* width: 100%; */
+}
+
+
+td {
+    overflow: visible !important;
+}
+
+.tooltip_text {
+    /* display: block;
+    background: red;
+    color: aliceblue; */
+
+    visibility: hidden;
+    opacity: 0;
+    background-color: #db7878;
+    color: #64db60;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+.tooltip_container:hover .tooltip_text {
+    visibility: visible !important;
+    opacity: 1;
+}
