@@ -1,49 +1,49 @@
 import axios from 'axios'
-import React, { useState } from 'react'
-import { data, Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { data, Link, useNavigate } from 'react-router-dom'
 import getConfig from '../services/common/getConfig'
 
 const Students = async () => {
 
-  const data = [
-    {
+  // const data = [
+  //   {
 
-      name: "alice",
-      doj: "12/1/2026",
-      contact: "7412589632",
-      address: "haldwani",
-      seat: "10",
-      status: "Active",
-      bookIssued: "1",
-      fee: "Paid",
-      action: "active",
-      isEnrolled: true,
-    },
-    {
-      name: "john",
-      doj: "10/2/2026",
-      contact: "7412589632",
-      address: "Pant Nagar",
-      seat: "20",
-      status: "Active",
-      bookIssued: "5",
-      fee: false,
-      isEnrolled: true,
-    },
-    {
-      name: "mack",
-      doj: "20/3/2026",
-      contact: "7412589632",
-      address: "Kathgodam",
-      seat: "28",
-      status: "Active",
-      bookIssued: "5",
-      fee: true,
-      isEnrolled: false,
+  //     name: "alice",
+  //     doj: "12/1/2026",
+  //     contact: "7412589632",
+  //     address: "haldwani",
+  //     seat: "10",
+  //     status: "Active",
+  //     bookIssued: "1",
+  //     fee: "Paid",
+  //     action: "active",
+  //     isEnrolled: true,
+  //   },
+  //   {
+  //     name: "john",
+  //     doj: "10/2/2026",
+  //     contact: "7412589632",
+  //     address: "Pant Nagar",
+  //     seat: "20",
+  //     status: "Active",
+  //     bookIssued: "5",
+  //     fee: false,
+  //     isEnrolled: true,
+  //   },
+  //   {
+  //     name: "mack",
+  //     doj: "20/3/2026",
+  //     contact: "7412589632",
+  //     address: "Kathgodam",
+  //     seat: "28",
+  //     status: "Active",
+  //     bookIssued: "5",
+  //     fee: true,
+  //     isEnrolled: false,
 
-    }
+  //   }
 
-  ];
+  // ];
 
   const [showViewModel, setShowViewModel] = useState(null);
 
@@ -53,6 +53,8 @@ const Students = async () => {
 
   const [student, setStudent] = useState();
 
+  const navigate = useNavigate();
+
   async function connect() {
     const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/student/all-student`, data, getConfig()); l
     console.log(data);
@@ -60,6 +62,10 @@ const Students = async () => {
     setStudent(data);
 
   };
+
+  useEffect(() => {
+    connect();
+  }, []);
 
 
 
@@ -106,12 +112,12 @@ const Students = async () => {
                 <tbody className='text-center'>
 
                   {
-                    data.map((item, index) => (
+                    student.map((item, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td> {item.name} </td>
                         <td> {item.doj} </td>
-                        <td> {item.contact} </td>
+                        <td> {item.phone} </td>
                         <td> {item.address} </td>
                         <td> {item.seat} </td>
                         <td> {item.bookIssued} </td>
