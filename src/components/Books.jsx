@@ -42,9 +42,9 @@ const Books = () => {
   };
 
   async function connect() {
-    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/book/get-all-book`, getConfig());
-    setbooks(data.booklist);
-    console.log(data.booklist);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/book/get-all-book`, getConfig());
+    setbooks(response.booklist);
+    console.log(response.booklist);
 
   };
 
@@ -61,6 +61,8 @@ const Books = () => {
 
   useEffect(() => {
     connect();
+    
+    
   }, []);
 
   return (
@@ -197,7 +199,7 @@ const Books = () => {
 
                 <tbody>
                   {
-                    books.map((item, index) => (
+                    books?.map((item, index) => (
                       <tr className='text-center' key={index} >
                         <td>
                           <img src={item.img_url} alt='book' height={50} />

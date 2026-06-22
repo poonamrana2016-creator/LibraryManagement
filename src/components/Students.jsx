@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { data, Link, useNavigate } from 'react-router-dom'
 import getConfig from '../services/common/getConfig'
 
-const Students = async () => {
+const Students = () => {
 
   // const data = [
   //   {
@@ -51,20 +51,26 @@ const Students = async () => {
 
   const [showDeleteModel, setShowDeleteModel] = useState(false);
 
-  const [student, setStudent] = useState();
+  const [student, setStudent] = useState([]);
 
   const navigate = useNavigate();
 
   async function connect() {
-    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/student/all-student`, data, getConfig()); l
-    console.log(data);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/student/all-student`, getConfig());
+      console.log(response.data);
 
-    setStudent(data);
 
+      setStudent(response.data.allStudents);
+
+    } catch (error) {
+      console.log(error.response?.data || error);
+    }
   };
 
   useEffect(() => {
     connect();
+    console.log("use effect is working in frontend");
   }, []);
 
 
@@ -112,8 +118,8 @@ const Students = async () => {
                 <tbody className='text-center'>
 
                   {
-                    student.map((item, index) => (
-                      <tr key={index}>
+                    student?.map((item, index) => (
+                      <tr key={index} className='text-center'>
                         <td>{index + 1}</td>
                         <td> {item.name} </td>
                         <td> {item.doj} </td>
