@@ -1,5 +1,9 @@
 import axios from 'axios'
+<<<<<<< HEAD
 import React, { useEffect, useRef, useState } from 'react'
+=======
+import React, { useEffect, useState } from 'react'
+>>>>>>> d6ac44039717cf85bef1b9b8f554c7b4f27f3369
 import { data, Link, useNavigate } from 'react-router-dom'
 import getConfig from '../services/common/getConfig'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +13,10 @@ import { allStudentApi } from '../slice/studentSlice'
 const Students = () => {
 
   // const data = [
+<<<<<<< HEAD
   // for manual data displaying
+=======
+>>>>>>> d6ac44039717cf85bef1b9b8f554c7b4f27f3369
   //   {
 
   //     name: "alice",
@@ -57,6 +64,7 @@ const Students = () => {
 
   const [showDeleteModel, setShowDeleteModel] = useState(false);
 
+<<<<<<< HEAD
   const [selectedata, setSelectedData] = useState("");
   const closeBtnRef = useRef();
 
@@ -116,6 +124,29 @@ const Students = () => {
     }
   }, [studentStore.students]);
 
+=======
+  const [student, setStudent] = useState([]);
+
+  const navigate = useNavigate();
+
+  async function connect() {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/student/all-student`, getConfig());
+      console.log(response.data);
+
+
+      setStudent(response.data.allStudents);
+
+    } catch (error) {
+      console.log(error.response?.data || error);
+    }
+  };
+
+  useEffect(() => {
+    connect();
+    console.log("use effect is working in frontend");
+  }, []);
+>>>>>>> d6ac44039717cf85bef1b9b8f554c7b4f27f3369
 
 
 
@@ -186,6 +217,7 @@ const Students = () => {
                                   :
                                   <button type='button' className='btn badge btn-danger btn-sm '>Active</button>
 
+<<<<<<< HEAD
                               }
                             </td>
                             <td className='justify-content-center'>
@@ -210,6 +242,31 @@ const Students = () => {
                               </div >
                             </td>
                           </tr>
+=======
+                  {
+                    student?.map((item, index) => (
+                      <tr key={index} className='text-center'>
+                        <td>{index + 1}</td>
+                        <td> {item.name} </td>
+                        <td> {item.doj} </td>
+                        <td> {item.phone} </td>
+                        <td> {item.address} </td>
+                        <td> {item.seat} </td>
+                        <td> {item.bookIssued} </td>
+                        <td>
+                          {item.fee === true ?
+                            <button type='button' className='btn badge btn-warning btn-sm'>pending</button>
+                            :
+                            <button type='button' className='btn badge btn-primary btn-sm'>Paid</button>
+                          }
+                        </td>
+                        <td>
+                          {
+                            item.isEnrolled === true ?
+                              <button type='button' className='btn badge btn-success btn-sm '>Active</button>
+                              :
+                              <button type='button' className='btn badge btn-danger btn-sm '>In-Active</button>
+>>>>>>> d6ac44039717cf85bef1b9b8f554c7b4f27f3369
 
                         )) : (
                           <tr>
