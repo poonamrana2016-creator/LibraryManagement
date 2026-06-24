@@ -1,7 +1,9 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import getConfig from "../services/common/getConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { loginApi } from "../slice/authSlice";
 
 const Signin = () => {
 
@@ -11,6 +13,8 @@ const Signin = () => {
   const handleShow = (e) => {
     setShow(!show);
   }
+
+
 
   const navigate = useNavigate();
 
@@ -24,6 +28,13 @@ const Signin = () => {
     emailErr: '',
     passwordErr: '',
   };
+
+
+  const dispatch = useDispatch();
+  const authStore = useSelector((state) => state.authStore);
+  console.log(authStore);
+  // ye dispatch react-redux k store k through connected h for api connecting
+
 
 
   const [formErr, setFormErr] = useState({});
@@ -75,16 +86,21 @@ const Signin = () => {
 
     if (isValid) {
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/sign-in`, formValue, getConfig);
-      // here api of backend is connected through auth-api.js
-      console.log(response);
+      // const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/sign-in`, formValue, getConfig());
+      // // here api of backend is connected through auth-api.js
+      // console.log(response); 
+      // ye wala part useDispatch k through pass krke API connect ho rha h below line
+
+
+      await dispatch(loginApi(formValue));
+      // this dispatch is used by the help of react-redux
 
 
       setFormValue(initialState);
 
       if (response.status === 201) {
 
-        localStorage.setItem('token',response.token);
+        localStorage.setItem('token', response.token);
 
         alert('submitted.');
         navigate('/');
@@ -94,7 +110,17 @@ const Signin = () => {
       alert('cannot log in due to invalid credentials');
     };
 
-  }
+  };
+
+  useEffect(() => {
+    if (authStore?.token !== null) {
+      setFormValue(initialState);
+      navigate('/');
+    }
+    if (authStore.error !== null) {
+      alert("Login Failed! Try again later ");
+    }
+  }, [authStore, authStore?.token]);
 
 
 
@@ -134,11 +160,11 @@ const Signin = () => {
 
                     </span>
                   </div>
-                  {
-                    formErr.passwordErr &&
-                    <span className="text-danger"> {formErr.passwordErr} </span>
-                  }
                 </div>
+                {
+                  formErr.passwordErr &&
+                  <span className="text-danger"> {formErr.passwordErr} </span>
+                }
 
                 <div className='mb-3 text-center'>
                   <button type='submit' className='btn btn-outline-success w-100'> Log In </button>

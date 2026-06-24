@@ -42,7 +42,7 @@ function App() {
           <Routes>
             <Route path='/' element={<Dashboard />} />
             <Route path='/book-list' element={<Books />} />
-            <Route path='/add-new-book' element={<Addnewbook />} />
+            <Route path='/add-book' element={<Addnewbook />} />
             <Route path='/view-book-detail/:id' element={<GetBookById />} />
             <Route path='/students-list' element={<Students />} />
             <Route path='/add-student' element={<Addstudent />} />

@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import addNewBookHelper from '../helper/add-new-book-helper';
-import { Await } from 'react-router-dom';
+import { Await, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import getConfig from '../services/common/getConfig';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNewBookApi } from '../slice/bookSlice';
 
 const Addnewbook = () => {
     // const { formValue, errors, handleInputChange, handleSubmit } = addNewBookHelper();
 
+
+    const dispatch = useDispatch();
+    const bookStore = useSelector((state) => state.bookStore);
+    console.log(bookStore)
     const initialState = {
         bookName: '',
         category: "",
@@ -19,10 +25,12 @@ const Addnewbook = () => {
 
     }
 
+
+
     const [formValue, setFormValue] = useState(initialState);
     const [errors, setErrors] = useState({});
 
-    const [navigate, setNavigate] = useState();
+    const navigate = useNavigate();
 
     const [image, setImage] = useState(null);
 
@@ -85,7 +93,7 @@ const Addnewbook = () => {
         data.append('author', formValue.author);
         data.append('copies', formValue.copies);
         data.append('status', formValue.status);
-        data.append('isbn',formValue.isbn);
+        data.append('isbn', formValue.isbn);
         data.append('price', formValue.price);
         data.append('image', image);
 
@@ -93,19 +101,26 @@ const Addnewbook = () => {
 
         if (isValid) {
             // API Calling to send data to backend
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/book/add-new-book`, data, getConfig());
+            // const response = await axios.post(`${import.meta.env.VITE_API_URL}/book/add-new-book`, data, getConfig());
             // setErrors(initialState);
 
+            await dispatch(addNewBookApi(data));
 
-            alert('Book added successful');
-            navigate();
-            
+            alert('Book was added successfully');
+            // setErrors(initialState);
+
         } else {
             // use Toast/ popup to display error name
-
+            alert('adding a new book failed!');
         }
-
     }
+
+    useEffect(() => {
+        if (bookStore.statusCode === 201) {
+            navigate('/book-list');
+            // setFormValue(initialState);
+        }
+    }, [bookStore.statusCode]);
 
 
     return (

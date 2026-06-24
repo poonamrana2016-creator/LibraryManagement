@@ -1,6 +1,9 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import getConfig from '../services/common/getConfig';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { addStudentApi } from '../slice/studentSlice';
 
 const Addstudent = () => {
 
@@ -16,6 +19,10 @@ const Addstudent = () => {
         address: "",
 
     }
+
+    const dispatch = useDispatch();
+    // const navigate = useNavigate();
+    const studentStore = useSelector((state) => state.studentStore);
 
     const [formValue, setFormValue] = useState(initialState);
     const [errors, setErrors] = useState({});
@@ -81,15 +88,24 @@ const Addstudent = () => {
 
         if (isValid) {
             // Api Calling here
+            // const response = await axios.post(`${import.meta.env.VITE_API_URL}/student/add-new-student`, formValue, getConfig());
 
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/student/add-new-student`, formValue, getConfig());
+
+           await dispatch(addStudentApi(formValue));
             alert('New Student Added Succefully!');
+            
 
         } else {
             // Error Toast
             alert('Unable to add a new Student!, please try after sometimes');
         }
     }
+
+    useEffect(() => {
+        if (studentStore.statusCode === 201) {
+            setFormValue(initialState);
+        }
+    }, [studentStore.statusCode]);
 
 
     return (
@@ -147,7 +163,7 @@ const Addstudent = () => {
                                 <div className='mb-2 col-lg-4 col-md-4 col-sm-4'>
                                     <label className='form-label'>Status</label>
                                     <select name='status' value={formValue.status} onChange={handleInput} className="form-select" aria-label="--select status--">
-                                        <option value="" selected >--select status--</option>
+                                        <option value=""  >--select status--</option>
                                         <option value="active">Active</option>
                                         <option value="in-active">In-active</option>
                                     </select>

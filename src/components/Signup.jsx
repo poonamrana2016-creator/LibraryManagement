@@ -1,6 +1,8 @@
 import axios from 'axios';
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { registerationAPI } from '../slice/authSlice';
 
 const Signup = () => {
 
@@ -21,6 +23,13 @@ const Signup = () => {
   // };
 
   // function Hook to Hide - Unhide Password
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const authStore = useSelector((state) => state.authStore);
+  console.log(authStore);
+
+
   const [show, setShow] = useState(false);
   const handleShow = (e) => {
     setShow(!show);
@@ -39,12 +48,10 @@ const Signup = () => {
 
 
   const [formValue, setFormValue] = useState(initialState);
-  console.log(formValue);
 
   const [errors, setErrors] = useState({});
 
   const handleFormChange = (e) => {
-    console.log(e);
 
     const { name, value } = e.target;
     setFormValue({
@@ -93,10 +100,6 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   }
 
-  console.log(formValue);
-  console.log(errors);
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,19 +108,17 @@ const Signup = () => {
 
     if (isValid) {
       // API Call;
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/sign-up`, formValue, {
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your-token-here',
-        }
-      });
-      console.log(response);
+      // const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/sign-up`, formValue, {
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     // 'Authorization': 'Bearer your-token-here',
+      //   }
+      // });
+      // console.log(response);
 
+      // API using React-Redux Slice-Store
+      dispatch(registerationAPI(formValue));
 
-      if (response.status === 201) {
-        alert('registration successful');
-        setFormValue(initialState);
-      }
     }
     else {
       alert('Registration form is empty');
@@ -125,6 +126,13 @@ const Signup = () => {
 
 
   }
+
+  useEffect(() => {
+    if (authStore.statusCode === 201) {
+      navigate("/sign-in");
+      setFormValue(initialState);
+    } 
+  }, [authStore.statusCode]);
 
   return (
     <>

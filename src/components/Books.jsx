@@ -1,52 +1,73 @@
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react'
-import { data, Link } from 'react-router-dom';
+import { data, Link, useNavigate } from 'react-router-dom';
 import getConfig from '../services/common/getConfig';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllBookApi } from '../slice/bookSlice';
 
 const Books = () => {
 
-  const [showViewModel, setShowViewModel] = useState(null);
+  const [showViewModel, setShowViewModel] = useState(false);
 
   const [showEditModel, setShowEditModel] = useState(false);
 
   const [showDeleteModel, setShowDeleteModel] = useState(false);
-  // const showDeleteModel = (id) => {
-  //   setShowDeleteModel(id);
-  // }
 
-  // to delete book
-  const [selectedData, setSelectedData] = useState("");
-  const closeBtnRef = useRef();
 
-  const handleSlectedItem = (id) => {
-    setSelectedData(id);
-  }
 
-  const handleDeleteData = async () => {
-    const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/book/delete-book/${selectedData}`, getConfig());
-  };
-  console.log(data);
-  if (data.success === true) {
-    closeBtnRef.current.click();
-    window.location.reload();
-    alert(data.message);
-  };
-
+  const [show, setShow] = useState(false);
 
   const [books, setbooks] = useState([]);
 
-  const [show, setShow] = useState(false);
+  // to get all the books from the database
+  const [selectedData, setSelectedData] = useState("");
+
+  // to delete book
+  const handleSlectedItem = (id) => {
+    setSelectedData(id);
+    setShowDeleteModel(true);
+  }
+
+
+  const handleDeleteData = async () => {
+    try {
+      const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/book/delete-book/${selectedData}`, getConfig());
+      console.log(selectedData);
+      if (data.success) {
+        alert(data.message);
+        window.location.reload();
+        // Close Modal
+        setShowDeleteModel(false);
+
+        // Remove deleted book from UI
+        setbooks(prev =>
+          prev.filter(book => book._id !== selectedData)
+        );
+
+        // Reset selected id
+        setSelectedData("");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Failed to delete book");
+    }
+  };
 
   const handleClick = (id) => {
     setShow(!show);
   };
 
-  async function connect() {
-    const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/book/get-all-book`, getConfig());
-    setbooks(data.booklist);
-    console.log(data.booklist);
+  // this function to get all bokk lists 
+  // async function connect() {
+  //   const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/book/get-all-book`, getConfig());
+  //   setbooks(data.booklist);
+  //   console.log(data.booklist);
 
-  };
+  // };
+
+  // useEffect(() => {
+  //   connect();
+  // }, []);
 
   // const handleDelete = async (id) => {
 
@@ -59,9 +80,24 @@ const Books = () => {
   //   }
   // }
 
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const bookStore = useSelector((state) => state.bookStore || []);
+  console.log(bookStore);
+
+  // to fetch all the book list from database using react-redux
   useEffect(() => {
-    connect();
-  }, []);
+    dispatch(getAllBookApi());
+  }, [dispatch]);
+
+  // to update when react-redux store updates
+  useEffect(() => {
+    if (bookStore.books?.length > 0) {
+      navigate("/book-list");
+      setbooks(bookStore.books);
+    }
+  }, [bookStore.books]);
 
   return (
     <>
@@ -77,7 +113,7 @@ const Books = () => {
             <input className='form-control ' type='text' placeholder='Search book' />
           </div>
           <div className="col-lg-2 text-end">
-            <Link to={'/add-new-book'}>
+            <Link to={'/add-book'}>
               <button type='submit' className='btn bg-primary'> Add New Book</button>
             </Link>
           </div>
@@ -92,7 +128,7 @@ const Books = () => {
               <div className="row g-0">
 
                 <div className="col-lg-4 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className=" mt-4   bi bi-book-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className=" mt-4   bi bi-book-fill" viewBox="0 0 16 16">
                     <path d="M8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783" />
                   </svg>
                 </div>
@@ -112,7 +148,7 @@ const Books = () => {
               <div className="row g-0">
 
                 <div className="col-lg-4 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" className=" mt-4 bi bi-check-circle-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className=" mt-4 bi bi-check-circle-fill" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                   </svg>
                 </div>
@@ -132,7 +168,7 @@ const Books = () => {
               <div className="row g-0">
 
                 <div className="col-lg-4 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" className=" mt-4  bi bi-book-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className=" mt-4  bi bi-book-fill" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
                   </svg>
                 </div>
@@ -152,7 +188,7 @@ const Books = () => {
               <div className="row g-o">
 
                 <div className="col-lg-4 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" className=" mt-4 bi bi-book-fill" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" className=" mt-4 bi bi-book-fill" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2" />
                   </svg>
                 </div>
@@ -180,69 +216,79 @@ const Books = () => {
 
           <div className="col-lg-12">
             <div className="card p-3">
-              <table className='table table-responsive'>
 
-                <thead>
-                  <tr className='text-center'>
-                    <th className='col'></th>
-                    <th className='col'>Book Details</th>
-                    <th className='col'>Category</th>
-                    <th className='col'>Author</th>
-                    <th className='col'>ISBN</th>
-                    <th className='col'>Copies</th>
-                    <th className='col'>Status</th>
-                    <th className='col'>Action</th>
-                  </tr>
-                </thead>
+              <div className='table_wrapper'>
+                <table className='table custom_table table-responsive'>
 
-                <tbody>
-                  {
-                    books.map((item, index) => (
-                      <tr className='text-center' key={index} >
-                        <td>
-                          <img src={item.img_url} alt='book' height={50} />
-                        </td>
-                        <td> {item.description} </td>
-                        <td>{item.category}</td>
-                        <td> {item.author} </td>
-                        <td> {item.isbn} </td>
-                        <td> {item.copies} </td>
-                        <td> {item.status} </td>
-                        {/* <td> {item.action} </td> */}
-                        <td className='justify-content-center'>
-                          <div className="">
-                            <Link to={`/view-book-detail/${item._id}`}>
-                              <button type='button' className=' btn btn-sm btn-outline-primary me-2 ' onClick={() => { setShowViewModel(true) }} >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
-                                  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                                  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-                                </svg>
-                              </button>
-                            </Link>
+                  <thead>
+                    <tr className='text-center'>
+                      <th className='col'>Cover</th>
+                      <th className='col'>Book Name</th>
+                      <th className='col'>Description</th>
+                      <th className='col'>Category</th>
+                      <th className='col'>Author</th>
+                      <th className='col'>ISBN</th>
+                      <th className='col'>Copies</th>
+                      <th className='col'>Status</th>
+                      <th className='col'>Action</th>
+                    </tr>
+                  </thead>
 
-                            <button type='button' className='btn btn-sm btn-outline-warning  me-2 ' onClick={() => { setShowEditModel(true) }}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                              </svg>
-                            </button>
+                  <tbody>
+                    {
+                      books.length > 0 ?
+                        books.map((item, index) => (
+                          <tr className='text-center' key={index} >
+                            <td>
+                              <img src={item.img_url} alt='book' height={50} />
+                            </td>
+                            <td> {item.bookName} </td>
+                            <td> {item.description} </td>
+                            <td>{item.category}</td>
+                            <td> {item.author} </td>
+                            <td> {item.isbn} </td>
+                            <td> {item.copies} </td>
+                            <td> {item.status} </td>
+                            {/* <td> {item.action} </td> */}
+                            <td className='justify-content-center'>
+                              <div className="d-flex">
+                                <Link to={`/view-book-detail/${item._id}`}>
+                                  <button type='button' className=' btn btn-sm btn-outline-primary me-1 ' onClick={() => { setShowViewModel(true) }} >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
+                                      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                    </svg>
+                                  </button>
+                                </Link>
+
+                                <button type='button' className='btn btn-sm btn-outline-warning  me-1 ' onClick={() => { setShowEditModel(true) }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                  </svg>
+                                </button>
 
 
-                            <button type='submit' ref={closeBtnRef} className='btn btn-outline-danger btn-sm  me-2 ' onClick={() => handleSlectedItem(item._id)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
-                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
-                              </svg>
-                            </button>
+                                <button type='submit' className='btn  btn-outline-danger btn-sm  me-1 ' onClick={() => { handleSlectedItem(item._id); setShowDeleteModel(true); }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                  </svg>
+                                </button>
 
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  }
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                        :
+                        <tr>
+                          <td colSpan={9} className='text-center'>No Books Available</td>
+                        </tr>
+                    }
 
-                </tbody>
+                  </tbody>
 
-              </table>
+                </table>
+              </div>
 
               {/* View Book Model Start */}
               {showViewModel && (
@@ -304,7 +350,7 @@ const Books = () => {
 
                       <div className="modal-footer">
                         <button className="btn btn-warning" onClick={() => setShowEditModel(false)} > Save Changes </button>
-                        <button className='btn btn-secondary'>Cancel</button>
+                        <button className='btn btn-secondary' onClick={() => setShowEditModel(false)} >Cancel</button>
                       </div>
                     </div>
                   </div>
@@ -319,10 +365,7 @@ const Books = () => {
                     <div className="modal-content">
                       <div className="modal-header">
                         <h5 className="modal-title">Delete Book</h5>
-                        <button
-                          className="btn-close"
-                          
-                        ></button>
+                        <button className="btn-close" onClick={() => setShowDeleteModel(false)} ></button>
                       </div>
 
                       <div className="modal-body">
@@ -330,18 +373,12 @@ const Books = () => {
                       </div>
 
                       <div className="modal-footer">
-                        <button
-                          className="btn btn-secondary"
-                          
-                        >
+                        <button className="btn btn-secondary" onClick={() => { setShowDeleteModel(false); setSelectedData(""); setSelectedData("") }}>
                           Cancel
                         </button>
 
-                        <button type='button'
-                          className="btn btn-danger"
-                          onClick={handleDeleteData}>
+                        <button type='button' className="btn btn-danger" onClick={handleDeleteData}>
                           Delete
-
                         </button>
 
                       </div>
