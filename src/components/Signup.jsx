@@ -100,7 +100,6 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   }
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -123,8 +122,6 @@ const Signup = () => {
     else {
       alert('Registration form is empty');
     };
-
-
   }
 
   useEffect(() => {
